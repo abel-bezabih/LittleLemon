@@ -1,45 +1,40 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
-from .models import MenuItem, Order
-from .serializers import MenuItemSerializer, OrderSerializer
-from rest_framework.response import Response
-from django.contrib.auth.models import User, Group
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
+from .models import Category, MenuItem, Cart, Order, OrderItem
+from .serializers import (
+    CategorySerializer, MenuItemSerializer, CartSerializer,
+    OrderSerializer, OrderItemSerializer
+)
 
-class MenuItemsView(generics.ListCreateAPIView):
+class CategoryListView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class MenuItemListView(generics.ListCreateAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ['price', 'inventory']
-    ordering_fields = ['price', 'title']
-    search_fields = ['title']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get_permissions(self):
-        if self.request.method == 'POST':
-            return [permissions.IsAdminUser()]
-        return super().get_permissions()
-
-class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
+class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class AddManagerView(generics.CreateAPIView):
-    def post(self, request):
-        user = User.objects.get(id=request.data["user_id"])
-        group = Group.objects.get(name="Manager")
-        user.groups.add(group)
-        return Response({"message": "User added to Manager group"}, status=201)
+class CartListView(generics.ListCreateAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class CartDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class OrderListView(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.groups.filter(name="Manager").exists():
-            return Order.objects.all()
-        return Order.objects.filter(customer=user)
+    permission_classes = [permissions.IsAuthenticated]
 
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]

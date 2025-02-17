@@ -1,10 +1,15 @@
 from django.urls import path
-from .views import MenuItemsView, SingleMenuItemView, OrderListView, OrderDetailView, AddManagerView
+from .views import (
+    CategoryListView, MenuItemListView, MenuItemDetailView,
+    CartListView, CartDetailView, OrderListView, OrderDetailView
+)
 
 urlpatterns = [
-    path('menu-items/', MenuItemsView.as_view(), name="menu-items"),
-    path('menu-items/<int:pk>/', SingleMenuItemView.as_view(), name="single-menu-item"),
-    path('orders/', OrderListView.as_view(), name="orders"),
-    path('orders/<int:pk>/', OrderDetailView.as_view(), name="order-detail"),
-    path('groups/manager/users/', AddManagerView.as_view(), name="add-manager"),
+    path('categories/', CategoryListView.as_view(), name='category-list'),
+    path('menu-items/', MenuItemListView.as_view(), name='menuitem-list'),
+    path('menu-items/<int:pk>/', MenuItemDetailView.as_view(), name='menuitem-detail'),
+    path('cart/', CartListView.as_view(), name='cart-list'),
+    path('cart/<int:pk>/', CartDetailView.as_view(), name='cart-detail'),
+    path('orders/', OrderListView.as_view(), name='order-list'),
+    path('orders/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
 ]
